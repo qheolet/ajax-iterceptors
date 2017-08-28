@@ -12,89 +12,70 @@
 </body>
 
 <script>
+var __merlin = false; //global 
+
+(function() { 
+
+        var _XHR = window.XMLHttpRequest;
+        var _calls = 0;
+        
+        function _wrapXHR() {
+         
+            var realXHR = new _XHR();
+
+            realXHR.addEventListener("readystatechange", function(e) { 
+             
+                if(e.target.readyState == 1){
+                    _calls++;
+                }
+
+                if(e.target.readyState == 4){
+                    _calls--;
+                }
 
 
-(function() { // Overriding XMLHttpRequest
-    var oldXHR = window.XMLHttpRequest;
-    var sum = 0;
-    
-    function newXHR() {
-        var realXHR = new oldXHR();
+                console.log(_calls)
 
-        realXHR.addEventListener("readystatechange", function(e) { 
-            if(e.target.readyState == 1){
-                sum++;
-            }
+                if(_calls == 0 && !__merlin){
+                    __merlin = true;
+                    /*======================
+                    execute the callback here.
+                    ========================*/
 
-            if(e.target.readyState == 4){
-                sum--;
-            }
 
-            if(sum == 0){
-                /*======================
-                execute the callback here.
-                ========================*/
-                console.log('CallBACK HERE')
-            }
+
+                    /*========================*/
+                 }
+
+                
+                
+            }, false);
+
+
+   
+
             
-        }, false);
 
-        return realXHR;
-    }
+            return realXHR;
+        }
 
-    window.XMLHttpRequest = newXHR;
+        
+
+        window.XMLHttpRequest = _wrapXHR;
+
 })();
 
-    // var text = (function() {
-    //     var proxied = window.XMLHttpRequest.prototype.send;
-    //     var a = 0;
-    //     window.XMLHttpRequest.prototype.send = function() {
-    //         a++;
-    //         console.log( arguments );
-    //         //Here is where you can add any code to process the request. 
-    //         //If you want to pass the Ajax request object, pass the 'pointer' below
-    //         var pointer = this;
-    //         var intervalId = window.setInterval(function(){
-
-    //                 if(pointer.readyState != 4){
-    //                         // return;
-                           
-    //                         console.log(a)
-              
-      
-    //                         return;
-    //                 }
-    //                 // console.log('Ready', pointer.responseText );
-
-    //                 // return pointer;
-    //                 //Here is where you can add any code to process the response.
-    //                 //If you want to pass the Ajax request object, pass the 'pointer' below
-    //                 // debugger;
-    //                 a--;
-    //                 console.log("DONE",a)
-    //                 clearInterval(intervalId);
-
-    //                 return pointer;
-                  
-                 
-    
-    //         }, 1);//I found a delay of 1 to be sufficient, modify it as you need.
-    //         return proxied.apply(this, [].slice.call(arguments));
-    //     };
-    
-    
-    // }());
-
+  
 
     $.ajax({url:'http://jikan.me/api/anime/1'}).done(function(a){
-        console.log('=============> 1 done',a)
+        console.log('=============> Call 1 done',a)
     }).catch(function(a){
         console.log('=============> 1 error',a)
     });
 
     $.ajax({url:'http://jikan.me/api/anime/1'})
     .done(function(a){
-        console.log('=============> 2 done',a)
+        console.log('=============> call 2 done',a)
     }).catch(function(a){
         console.log('=============> 1 error',a)
     });
@@ -102,10 +83,12 @@
 
 
 
+
+
     setTimeout(function(){
         $.ajax({url:'http://jikan.me/api/anime/1'}).done(function(){
-        console.log('=============> 3 done')
-    }).fail(function(){
+        console.log('=============> call after inits call 3 done')
+    }).fail(function(a){
         console.log('=============> 1 error',a)
     });
     },6000)
