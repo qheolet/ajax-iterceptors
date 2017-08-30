@@ -2,11 +2,11 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -14,92 +14,105 @@
 </body>
 
 <script>
-    var __m = false; //global 
-    var __p = false;
+  var __m = false, __p = false;
 
-    (function (loading,finish,error) {
+  (function (loading, finish, error) {
 
-        var _XHR = window.XMLHttpRequest;
-        var _calls = 0;
+    var _XHR = window.XMLHttpRequest;
+    var _calls = 0;
 
-        function _wrapXHR() {
+    function _wrapXHR() {
 
-            var realXHR = new _XHR();
+      var realXHR = new _XHR();
 
-            realXHR.addEventListener("readystatechange", function (e) {
+      realXHR.addEventListener("readystatechange", function (e) {
 
-                if (e.target.status >= 400 && !__m) {
-                    __m = true;
-                    /*======================
-                   execute the callback when error here.
-                   ========================*/
-                    error(e);
-                    /*========================*/
-                    return;
-                }
-
-                if (!__p ){
-                    __p = true;
-                    /*======================
-                   execute the callback when Loading.
-                   ========================*/
-                    loading(e)
-                    /*========================*/
-                }
-
-                if (e.target.readyState == 1) {
-                    _calls++;
-                }
-
-                if (e.target.readyState == 4) {
-                    _calls--;
-                }
-
-                if (_calls == 0 && !__m) {
-                    __m = true;
-                    /*======================
-                    execute the callback when finish here.
-                    ========================*/
-                    finish(e)
-                    /*========================*/
-                    return;
-                }
-            }, false);
-            return realXHR;
+        if (e.target.status >= 400 && !__m) {
+          __m = true;
+          /*======================
+            execute the callback when error here.
+          ========================*/
+          error && error(e); 
+          /*========================*/
+          return;
         }
 
-        window.XMLHttpRequest = _wrapXHR;
+        if (!__p) {
+          __p = true;
+          /*======================
+             execute the callback when Loading.
+        ========================*/
+          loading && loading(e);
+          /*========================*/
+        }
 
-    })(function(e){
-        console.log('Loading',e)
-        },
-        function(e){
-            console.log('Finish',e)
-        },
-        function(e){
-            console.log('Error',e)
-        });
+        if (e.target.readyState == 1) {
+          _calls++;
+        }
 
-    $.ajax({ url: 'http://jikan.me/api/2/anime/' }).done(function (a) {
-        console.log('=============> Call 1 done', a)
+        if (e.target.readyState == 4) {
+          _calls--;
+        }
+
+        if (_calls == 0 && !__m) {
+          __m = true;
+          /*======================
+          execute the callback when finish here.
+          ========================*/
+          finish && finish(e);
+          /*========================*/
+          return;
+        }
+      }, false);
+      return realXHR;
+    }
+
+    window.XMLHttpRequest = _wrapXHR;
+
+  })(Loading, Finish, Error /*Inject Callback*/);
+
+
+  /* CALLBACKS */
+  function Loading(e /*Event*/) {
+    console.log('Loading', e)
+  }
+
+  function Finish(e /*Event*/) {
+    console.log('Finish', e)
+  }
+
+  function Error(e /*Event*/) {
+    console.log('Error', e)
+  }
+
+
+
+  $.ajax({
+    url: 'http://jikan.me/api/2/anime/'
+  }).done(function (a) {
+    console.log('=============> Call 1 done', a)
+  }).catch(function (a) {
+    console.log('=============> 1 error', a)
+  });
+
+  $.ajax({
+      url: 'http://jikan.me/api/anime/1'
+    })
+    .done(function (a) {
+      console.log('=============> call 2 done', a)
     }).catch(function (a) {
-        console.log('=============> 1 error', a)
+      console.log('=============> 1 error', a)
     });
 
-    $.ajax({url:'http://jikan.me/api/anime/1'})
-    .done(function(a){
-        console.log('=============> call 2 done',a)
-    }).catch(function(a){
-        console.log('=============> 1 error',a)
+  setTimeout(function () {
+    $.ajax({
+      url: 'http://jikan.me/api/anime/1'
+    }).done(function () {
+      console.log('=============> call after inits call 3 done')
+    }).fail(function (a) {
+      console.log('=============> 1 error', a)
     });
-
-    setTimeout(function(){
-        $.ajax({url:'http://jikan.me/api/anime/1'}).done(function(){
-        console.log('=============> call after inits call 3 done')
-    }).fail(function(a){
-        console.log('=============> 1 error',a)
-    });
-    },6000)
+  }, 6000)
 
 </script>
 
