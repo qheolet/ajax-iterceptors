@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,70 +8,82 @@
     <title>Document</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
+
 <body>
-    
+
 </body>
 
 <script>
-var __merlin = false; //global 
+    var __m = false; //global 
+    var __p = false;
 
-(function() { 
+    (function (loading,finish,error) {
 
         var _XHR = window.XMLHttpRequest;
         var _calls = 0;
-        
+
         function _wrapXHR() {
-         
+
             var realXHR = new _XHR();
 
-            realXHR.addEventListener("readystatechange", function(e) { 
-             
-                if(e.target.readyState == 1){
+            realXHR.addEventListener("readystatechange", function (e) {
+
+                if (e.target.status >= 400 && !__m) {
+                    __m = true;
+                    /*======================
+                   execute the callback when error here.
+                   ========================*/
+                    error(e);
+                    /*========================*/
+                    return;
+                }
+
+                if (!__p ){
+                    __p = true;
+                    /*======================
+                   execute the callback when Loading.
+                   ========================*/
+                    loading(e)
+                    /*========================*/
+                }
+
+                if (e.target.readyState == 1) {
                     _calls++;
                 }
 
-                if(e.target.readyState == 4){
+                if (e.target.readyState == 4) {
                     _calls--;
                 }
 
-
-                console.log(_calls)
-
-                if(_calls == 0 && !__merlin){
-                    __merlin = true;
+                if (_calls == 0 && !__m) {
+                    __m = true;
                     /*======================
-                    execute the callback here.
+                    execute the callback when finish here.
                     ========================*/
-
-
-
+                    finish(e)
                     /*========================*/
-                 }
-
-                
-                
+                    return;
+                }
             }, false);
-
-
-   
-
-            
-
             return realXHR;
         }
 
-        
-
         window.XMLHttpRequest = _wrapXHR;
 
-})();
+    })(function(e){
+        console.log('Loading',e)
+        },
+        function(e){
+            console.log('Finish',e)
+        },
+        function(e){
+            console.log('Error',e)
+        });
 
-  
-
-    $.ajax({url:'http://jikan.me/api/anime/1'}).done(function(a){
-        console.log('=============> Call 1 done',a)
-    }).catch(function(a){
-        console.log('=============> 1 error',a)
+    $.ajax({ url: 'http://jikan.me/api/2/anime/' }).done(function (a) {
+        console.log('=============> Call 1 done', a)
+    }).catch(function (a) {
+        console.log('=============> 1 error', a)
     });
 
     $.ajax({url:'http://jikan.me/api/anime/1'})
@@ -80,11 +93,6 @@ var __merlin = false; //global
         console.log('=============> 1 error',a)
     });
 
-
-
-
-
-
     setTimeout(function(){
         $.ajax({url:'http://jikan.me/api/anime/1'}).done(function(){
         console.log('=============> call after inits call 3 done')
@@ -93,6 +101,6 @@ var __merlin = false; //global
     });
     },6000)
 
-
 </script>
+
 </html>
